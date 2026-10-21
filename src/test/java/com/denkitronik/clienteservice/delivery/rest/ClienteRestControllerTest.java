@@ -222,4 +222,31 @@ class ClienteRestControllerTest {
                 .andExpect(jsonPath("$.content[0].nombre").value("Ada"))
                 .andExpect(jsonPath("$.totalElements").value(1));
     }
+
+    @Test
+    @DisplayName("GET /clientes/regiones retorna la lista de regiones")
+    void listarRegiones_retorna200ConRegiones() throws Exception {
+        when(clienteService.findAllRegiones()).thenReturn(List.of(region));
+
+        mockMvc.perform(get(BASE + "/clientes/regiones"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].nombre").value("Europa"));
+    }
+
+    @Test
+    @DisplayName("PUT /clientes/{id} con datos inválidos retorna 400")
+    void actualizarCliente_emailInvalido_retorna400() throws Exception {
+        Cliente invalido = new Cliente();
+        invalido.setNombre("Ada");
+        invalido.setApellido("Lovelace");
+        invalido.setEmail("esto-no-es-un-email");
+        invalido.setRegion(region);
+
+        mockMvc.perform(put(BASE + "/clientes/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalido)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors", hasItem(containsString("email"))));
+    }
 }
