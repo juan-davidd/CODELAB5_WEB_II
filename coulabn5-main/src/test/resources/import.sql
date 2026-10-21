@@ -1,0 +1,1 @@
+-- vacío: los tests manejan sus propios datos (sombrea el import.sql de producción)
